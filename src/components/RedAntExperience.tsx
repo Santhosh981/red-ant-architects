@@ -8,6 +8,22 @@ import { images, processStages, projects, services, type Project } from "@/data/
 const chars = (text: string) => text.split("").map((char, index) => <span className="char" key={`${char}-${index}`}>{char === " " ? "\u00a0" : char}</span>);
 const Meta = ({ project, index }: { project: Project; index: number }) => <div className="project-meta"><span>{String(index + 1).padStart(2, "0")}</span><h3>{project.name}</h3><p>{project.city} / {project.country}</p><p>{project.year} — {project.category}</p></div>;
 
+function useEnhanced3D() {
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    const query = matchMedia("(min-width: 768px) and (prefers-reduced-motion: no-preference)");
+    const update = () => setEnabled(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return enabled;
+}
+
+function StaticForm({ globe = false }: { globe?: boolean }) {
+  return globe ? <div className="static-globe"><i/><i/><i/><i/><i/><i/><i/></div> : <div className="static-form"><i/><i/><i/><i/></div>;
+}
+
 function Navigation() {
   const [open, setOpen] = useState(false);
   return <header className="site-nav" data-nav><a className="brand" href="#top">RED ANT</a><nav className={open ? "nav-links is-open" : "nav-links"}>{[["WORK","#work"],["STUDIO","#studio"],["SERVICES","#services"],["CONTACT","#contact"]].map(([label, href]) => <a key={label} href={href} onClick={() => setOpen(false)}>{label}</a>)}</nav><button className="menu-toggle" aria-label="Toggle menu" onClick={() => setOpen(!open)}><i /><i /></button></header>;
@@ -43,14 +59,14 @@ function SplitProject() { const p = projects.at(6); if (!p) return null; return 
 
 function Work() { return <section className="work" id="work"><div className="section-title"><span className="technical">02 / SELECTED PROJECTS</span><h2>SELECTED<br/><i>WORK</i></h2></div><TileProject/><TheatreProject/><HorizontalProjects/><CircularProject/><ZoomProject/><SplitProject/></section>; }
 
-function ObjectSection() { return <section className="object-section"><div className="canvas-wrap"><ArchitecturalCanvas /></div><div className="object-label"><span className="technical">03 / MATERIAL STUDY</span><h2>MATTER<br/>IN <i>MOTION</i></h2><p>CONCRETE / GLASS / LIGHT</p></div></section>; }
-function ShapeSection() { return <section className="shape-section"><div className="canvas-wrap"><ArchitecturalCanvas morph /></div><div className="shape-words"><span>FORM</span><span>SPACE</span><span>MATERIAL</span><span>LIGHT</span></div><p className="technical shape-index">04 / SHAPE STUDY</p></section>; }
+function ObjectSection({ enhanced }: { enhanced: boolean }) { return <section className="object-section"><div className="canvas-wrap">{enhanced ? <ArchitecturalCanvas /> : <StaticForm />}</div><div className="object-label"><span className="technical">03 / MATERIAL STUDY</span><h2>MATTER<br/>IN <i>MOTION</i></h2><p>CONCRETE / GLASS / LIGHT</p></div></section>; }
+function ShapeSection({ enhanced }: { enhanced: boolean }) { return <section className="shape-section"><div className="canvas-wrap">{enhanced ? <ArchitecturalCanvas morph /> : <StaticForm />}</div><div className="shape-words"><span>FORM</span><span>SPACE</span><span>MATERIAL</span><span>LIGHT</span></div><p className="technical shape-index">04 / SHAPE STUDY</p></section>; }
 
 function Services() { return <section className="services exhibition" id="services"><div className="services-heading"><span className="technical">05 / CAPABILITIES</span><h2>WHAT<br/>WE <i>DO</i></h2></div><div className="service-list">{services.map((service, i) => <div className="service" key={service}><span>{String(i+1).padStart(2,"0")}</span><h3>{chars(service)}</h3><b>↗</b></div>)}</div></section>; }
 
 function GridSection() { return <section className="grid-section"><svg viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true"><g>{[100,260,420,580,740,900,1060].map(x=><line key={`v${x}`} x1={x} y1="0" x2={x} y2="700" />)}{[100,250,400,550].map(y=><line key={`h${y}`} x1="0" y1={y} x2="1200" y2={y} />)}<rect x="260" y="100" width="320" height="300"/><rect x="740" y="250" width="320" height="300"/></g></svg><img className="grid-image grid-image-a" loading="lazy" src={images.courtyard} width={1600} height={1104} alt="Red Courtyard"/><img className="grid-image grid-image-b" loading="lazy" src={images.monolith} width={1600} height={1104} alt="Monolith"/><div className="grid-label"><span>DRAWING 07</span><strong>SPACE IS A SYSTEM.</strong></div></section>; }
 
-function GlobalPresence() { const [active, setActive] = useState<Project | null>(null); return <section className="world"><div className="world-copy"><span className="technical">06 / GLOBAL PRESENCE</span><h2>BUILT<br/>AROUND<br/><i>THE WORLD</i></h2></div><div className="globe-wrap"><GlobeCanvas projects={projects} onHover={setActive}/>{active && <div className="globe-tooltip"><strong>{active.name}</strong><span>{active.city}</span><span>{active.category}</span></div>}</div><div className="city-list">{projects.map(p=><span key={p.city}>{p.city}</span>)}</div></section>; }
+function GlobalPresence({ enhanced }: { enhanced: boolean }) { const [active, setActive] = useState<Project | null>(null); return <section className="world"><div className="world-copy"><span className="technical">06 / GLOBAL PRESENCE</span><h2>BUILT<br/>AROUND<br/><i>THE WORLD</i></h2></div><div className="globe-wrap">{enhanced ? <GlobeCanvas projects={projects} onHover={setActive}/> : <StaticForm globe/>}{active && <div className="globe-tooltip"><strong>{active.name}</strong><span>{active.city}</span><span>{active.category}</span></div>}</div><div className="city-list">{projects.map(p=><span key={p.city}>{p.city}</span>)}</div></section>; }
 
 function Philosophy() { return <section className="philosophy"><div className="philo-image"><img loading="lazy" src={images.desert} width={1600} height={1104} alt="Desert Frame"/></div><h2 className="scatter"><span>WE</span><span>{chars("DESIGN")}</span><span>FOR PEOPLE.</span></h2><h2 className="scatter second"><span>WE</span><span>{chars("BUILD")}</span><span>FOR TIME.</span></h2></section>; }
 function FullImage() { return <section className="full-image"><img loading="lazy" src={images.northline} width={1600} height={1104} alt="Northline pavilion"/><span>RED ANT / ARCHITECTURE / 2026</span></section>; }
@@ -60,6 +76,7 @@ function Footer() { return <footer><h2>RED ANT</h2><div className="footer-grid">
 
 export function RedAntExperience() {
   const root = useRef<HTMLDivElement>(null);
+  const enhanced3D = useEnhanced3D();
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -100,5 +117,5 @@ export function RedAntExperience() {
     }, root);
     return () => { ctx.revert(); lenis?.destroy(); cancelAnimationFrame(raf); };
   }, []);
-  return <div ref={root} className="red-ant"><LoadingScreen/><Navigation/><Cursor/><main><Hero/><Years/><Work/><ObjectSection/><ShapeSection/><Services/><GridSection/><GlobalPresence/><Philosophy/><FullImage/><Process/><FinalCta/></main><Footer/></div>;
+  return <div ref={root} className="red-ant"><LoadingScreen/><Navigation/><Cursor/><main><Hero/><Years/><Work/><ObjectSection enhanced={enhanced3D}/><ShapeSection enhanced={enhanced3D}/><Services/><GridSection/><GlobalPresence enhanced={enhanced3D}/><Philosophy/><FullImage/><Process/><FinalCta/></main><Footer/></div>;
 }
