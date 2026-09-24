@@ -69,9 +69,11 @@ export function RedAntExperience() {
     const tick = (time: number) => { lenis?.raf(time); raf = requestAnimationFrame(tick); };
     if (lenis) { raf = requestAnimationFrame(tick); lenis.on("scroll", ScrollTrigger.update); }
     const ctx = gsap.context(() => {
-      gsap.to("[data-progress]", { innerText: 100, duration: 1.15, snap: { innerText: 1 }, ease: "power2.inOut" });
-      const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
-      intro.to("[data-loader]", { yPercent: -100, duration: .9, delay: 1.25 }).from("[data-hero-media]", { clipPath: "inset(50% 0)", scale: 1.22, duration: 1.4 }, "-=.55").from(".hero h1 .char", { yPercent: 120, stagger: .035, duration: 1 }, "-=1").from(".hero-disciplines span,.technical,.scroll-cue", { opacity: 0, y: 18, stagger: .08 }, "-=.55").from("[data-hero-line]", { scaleX: 0, duration: 1 }, "-=.7");
+      if (!reduced) {
+        gsap.to("[data-progress]", { innerText: 100, duration: 1.15, snap: { innerText: 1 }, ease: "power2.inOut" });
+        const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+        intro.to("[data-loader]", { yPercent: -100, duration: .9, delay: 1.25 }).from("[data-hero-media]", { clipPath: "inset(50% 0)", scale: 1.22, duration: 1.4 }, "-=.55").from(".hero h1 .char", { yPercent: 120, stagger: .035, duration: 1 }, "-=1").from(".hero-disciplines span,.technical,.scroll-cue", { opacity: 0, y: 18, stagger: .08 }, "-=.55").from("[data-hero-line]", { scaleX: 0, duration: 1 }, "-=.7");
+      }
       gsap.to("[data-nav]", { backgroundColor: "rgba(8,8,8,.84)", backdropFilter: "blur(14px)", scrollTrigger: { trigger: ".years", start: "top 90%", toggleActions: "play none none reverse" } });
       if (!reduced) {
         gsap.to(".hero-media img", { yPercent: 12, scale: 1.08, scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
