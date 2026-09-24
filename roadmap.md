@@ -5,4 +5,4 @@
 - [x] Build all one-page exhibition sections
 - [x] Add interactive architectural WebGL scenes
 - [x] Add responsive and reduced-motion behavior
-- [ ] Verify desktop and mobile experiences
+- [x] Verify desktop and mobile experiences
