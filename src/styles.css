@@ -149,7 +149,7 @@
     font-family: var(--font-body);
     overflow-x: hidden;
   }
-  html { scroll-behavior: smooth; background: var(--background); }
+  html { scroll-behavior: smooth; background: var(--background); overflow-x: clip; }
   ::selection { background: var(--primary); color: var(--primary-foreground); }
 }
 
