@@ -67,12 +67,16 @@ function Globe({ projects, onHover }: GlobeProps) {
   useFrame((_, rawDelta) => { if (group.current) group.current.rotation.y += Math.min(rawDelta, .05) * .045; });
   return <group ref={group} rotation={[0, -.4, 0]}>
     <mesh><sphereGeometry args={[2.5, 48, 48]} /><meshStandardMaterial color="#171717" roughness={.72} metalness={.22} wireframe /></mesh>
-    {coords.map(([lat, lon], i) => {
+    {coords.map((coord, i) => {
+      const lat = coord[0] ?? 0;
+      const lon = coord[1] ?? 0;
+      const project = projects[i];
+      if (!project) return null;
       const phi = (90 - lat) * Math.PI / 180;
       const theta = (lon + 180) * Math.PI / 180;
       const r = 2.55;
       const p: [number, number, number] = [-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta)];
-      return <mesh key={projects[i].name} position={p} onPointerOver={(e) => { e.stopPropagation(); onHover(projects[i]); }} onPointerOut={() => onHover(null)}>
+      return <mesh key={project.name} position={p} onPointerOver={(e) => { e.stopPropagation(); onHover(project); }} onPointerOut={() => onHover(null)}>
         <sphereGeometry args={[.075, 12, 12]} /><meshStandardMaterial color="#e3261e" emissive="#e3261e" emissiveIntensity={2} />
       </mesh>;
     })}
