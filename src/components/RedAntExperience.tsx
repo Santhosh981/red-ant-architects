@@ -45,7 +45,6 @@ function Cursor() {
   return <div ref={ref} className="cursor" aria-hidden="true"><span /></div>;
 }
 
-function LoadingScreen() { return <div className="loader" data-loader><div className="loader-mark">RED ANT</div><span>ARCHITECTURE / DESIGN / SPACE</span><strong data-progress>00</strong></div>; }
 
 function Hero() { return <section className="hero" id="top"><div className="hero-media" data-hero-media><img src={images.hero} width={1600} height={1104} fetchPriority="high" alt="Cantilevered concrete residence at dusk" /></div><div className="hero-shade" /><div className="hero-copy"><p className="technical">INDEPENDENT ARCHITECTURE STUDIO <span>— 01</span></p><h1><span className="hero-red">{chars("RED")}</span><span>{chars("ANT")}</span></h1><div className="hero-disciplines"><span>ARCHITECTURE</span><span>DESIGN</span><span>SPACE</span></div></div><div className="hero-line" data-hero-line /><div className="scroll-cue">SCROLL TO ENTER <b>↓</b></div></section>; }
 
