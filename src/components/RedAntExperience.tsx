@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { ArchitecturalCanvas, GlobeCanvas } from "./RedAnt3D";
+import { IntroAnimation, INTRO_REVEAL_EVENT, INTRO_DONE_EVENT } from "./intro/IntroAnimation";
 import { images, processStages, projects, services, type Project } from "@/data/red-ant";
 
 const chars = (text: string) => text.split("").map((char, index) => <span className="char" key={`${char}-${index}`}>{char === " " ? "\u00a0" : char}</span>);
@@ -85,11 +86,14 @@ export function RedAntExperience() {
     let raf = 0;
     const tick = (time: number) => { lenis?.raf(time); raf = requestAnimationFrame(tick); };
     if (lenis) { raf = requestAnimationFrame(tick); lenis.on("scroll", ScrollTrigger.update); }
+    lenis?.stop();
+    const onDone = () => { lenis?.start(); ScrollTrigger.refresh(); };
+    let playIntro = () => {};
     const ctx = gsap.context(() => {
       if (!reduced) {
-        gsap.to("[data-progress]", { innerText: 100, duration: 1.15, snap: { innerText: 1 }, ease: "power2.inOut" });
-        const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
-        intro.to("[data-loader]", { yPercent: -100, duration: .9, delay: 1.25 }).from("[data-hero-media]", { clipPath: "inset(50% 0)", scale: 1.22, duration: 1.4 }, "-=.55").from(".hero h1 .char", { yPercent: 120, stagger: .035, duration: 1 }, "-=1").from(".hero-disciplines span,.technical,.scroll-cue", { opacity: 0, y: 18, stagger: .08 }, "-=.55").from("[data-hero-line]", { scaleX: 0, duration: 1 }, "-=.7");
+        const intro = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+        intro.from("[data-hero-media]", { clipPath: "inset(50% 0)", scale: 1.22, duration: 1.4 }, 0.3).from(".hero h1 .char", { yPercent: 120, stagger: .035, duration: 1 }, "-=1").from(".hero-disciplines span,.hero .technical,.scroll-cue", { opacity: 0, y: 18, stagger: .08 }, "-=.55").from("[data-hero-line]", { scaleX: 0, duration: 1 }, "-=.7");
+        playIntro = () => { intro.play(); };
       }
       gsap.to("[data-nav]", { backgroundColor: "rgba(8,8,8,.84)", backdropFilter: "blur(14px)", scrollTrigger: { trigger: ".years", start: "top 90%", toggleActions: "play none none reverse" } });
       if (!reduced) {
@@ -115,7 +119,10 @@ export function RedAntExperience() {
         gsap.from(".final-cta h2 .char", { yPercent: 140, x: (i) => (i - 6) * 4, stagger: .025, scrollTrigger: { trigger: ".final-cta", start: "top 75%", end: "center 50%", scrub: true } });
       }
     }, root);
-    return () => { ctx.revert(); lenis?.destroy(); cancelAnimationFrame(raf); };
+    const onReveal = () => playIntro();
+    window.addEventListener(INTRO_REVEAL_EVENT, onReveal);
+    window.addEventListener(INTRO_DONE_EVENT, onDone);
+    return () => { window.removeEventListener(INTRO_REVEAL_EVENT, onReveal); window.removeEventListener(INTRO_DONE_EVENT, onDone); ctx.revert(); lenis?.destroy(); cancelAnimationFrame(raf); };
   }, []);
-  return <div ref={root} className="red-ant"><LoadingScreen/><Navigation/><Cursor/><main><Hero/><Years/><Work/><ObjectSection enhanced={enhanced3D}/><ShapeSection enhanced={enhanced3D}/><Services/><GridSection/><GlobalPresence enhanced={enhanced3D}/><Philosophy/><FullImage/><Process/><FinalCta/></main><Footer/></div>;
+  return <div ref={root} className="red-ant"><IntroAnimation/><Navigation/><Cursor/><main><Hero/><Years/><Work/><ObjectSection enhanced={enhanced3D}/><ShapeSection enhanced={enhanced3D}/><Services/><GridSection/><GlobalPresence enhanced={enhanced3D}/><Philosophy/><FullImage/><Process/><FinalCta/></main><Footer/></div>;
 }
