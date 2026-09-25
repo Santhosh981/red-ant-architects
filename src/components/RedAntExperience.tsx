@@ -62,7 +62,7 @@ function Work() { return <section className="work" id="work"><div className="sec
 function ObjectSection({ enhanced }: { enhanced: boolean }) { return <section className="object-section"><div className="canvas-wrap">{enhanced ? <ArchitecturalCanvas /> : <StaticForm />}</div><div className="object-label"><span className="technical">03 / MATERIAL STUDY</span><h2>MATTER<br/>IN <i>MOTION</i></h2><p>CONCRETE / GLASS / LIGHT</p></div></section>; }
 function ShapeSection({ enhanced }: { enhanced: boolean }) { return <section className="shape-section"><div className="canvas-wrap">{enhanced ? <ArchitecturalCanvas morph /> : <StaticForm />}</div><div className="shape-words"><span>FORM</span><span>SPACE</span><span>MATERIAL</span><span>LIGHT</span></div><p className="technical shape-index">04 / SHAPE STUDY</p></section>; }
 
-function Services() { return <section className="services exhibition" id="services"><div className="services-heading"><span className="technical">05 / CAPABILITIES</span><h2>WHAT<br/>WE <i>DO</i></h2></div><div className="service-list">{services.map((service, i) => <div className="service" key={service}><span>{String(i+1).padStart(2,"0")}</span><h3>{chars(service)}</h3><b>↗</b></div>)}</div></section>; }
+function Services() { return <section className="services exhibition" id="services"><div className="services-heading"><span className="technical">05 / CAPABILITIES</span><h2>WHAT<br/>WE <i>DO</i></h2></div><div className="service-list">{services.map((service, i) => { const project = projects.at(i); return <div className="service" key={service}><span>{String(i+1).padStart(2,"0")}</span><div className="service-name"><h3>{chars(service)}</h3>{project && <div className="service-image" aria-hidden="true"><img loading="lazy" src={project.image} width={1600} height={1104} alt="" /></div>}</div><b>↗</b></div>; })}</div></section>; }
 
 function GridSection() { return <section className="grid-section"><svg viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true"><g>{[100,260,420,580,740,900,1060].map(x=><line key={`v${x}`} x1={x} y1="0" x2={x} y2="700" />)}{[100,250,400,550].map(y=><line key={`h${y}`} x1="0" y1={y} x2="1200" y2={y} />)}<rect x="260" y="100" width="320" height="300"/><rect x="740" y="250" width="320" height="300"/></g></svg><img className="grid-image grid-image-a" loading="lazy" src={images.courtyard} width={1600} height={1104} alt="Red Courtyard"/><img className="grid-image grid-image-b" loading="lazy" src={images.monolith} width={1600} height={1104} alt="Monolith"/><div className="grid-label"><span>DRAWING 07</span><strong>SPACE IS A SYSTEM.</strong></div></section>; }
 
@@ -106,7 +106,14 @@ export function RedAntExperience() {
         gsap.to(".circle-image", { rotation: 2.5, scale: 1.06, scrollTrigger: { trigger: ".circular-project", start: "top bottom", end: "bottom top", scrub: true } });
         gsap.to(".zoom-front", { scale: 3, opacity: 0, scrollTrigger: { trigger: ".zoom-project", start: "top top", end: "+=130%", scrub: true, pin: !mobile } });
         gsap.timeline({ scrollTrigger: { trigger: ".split-project", start: "top 70%", end: "bottom 30%", scrub: true } }).from(".split-media", { yPercent: 18 }).from(".split-info", { yPercent: -18 }, 0);
-        gsap.from(".service", { yPercent: 70, opacity: 0, stagger: .1, scrollTrigger: { trigger: ".services", start: "top 65%" } });
+        gsap.from(".service", { yPercent: 35, opacity: 0, stagger: .1, scrollTrigger: { trigger: ".services", start: "top 65%" } });
+        gsap.utils.toArray<HTMLElement>(".service").forEach((service) => {
+          const image = service.querySelector(".service-image");
+          if (!image) return;
+          gsap.timeline({ scrollTrigger: { trigger: service, start: "top 88%", end: "bottom 12%", scrub: true } })
+            .fromTo(image, { yPercent: 115, scale: .72, opacity: 0 }, { yPercent: -12, scale: 1, opacity: 1, ease: "power2.out", duration: .48 })
+            .to(image, { yPercent: 115, scale: .82, opacity: 0, ease: "power2.in", duration: .52 });
+        });
         document.querySelectorAll(".service").forEach(el => { const letters = el.querySelectorAll(".char"); el.addEventListener("mouseenter", () => gsap.fromTo(letters, { y: 0 }, { y: (i) => Math.sin(i * .8) * -14, duration: .35, stagger: .02, yoyo: true, repeat: 1 })); });
         gsap.from(".grid-section line,.grid-section rect", { strokeDashoffset: 1000, scrollTrigger: { trigger: ".grid-section", start: "top 70%", end: "center center", scrub: true } });
         gsap.from(".grid-image", { clipPath: "inset(50% 50%)", stagger: .15, scrollTrigger: { trigger: ".grid-section", start: "top 55%" } });

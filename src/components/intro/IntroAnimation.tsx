@@ -4,34 +4,34 @@ import { images, projects } from "@/data/red-ant";
 
 /** Centralized intro configuration — tweak timing/feel here. */
 export const INTRO_CONFIG = {
-  imageDuration: 1.5,
-  zoomDuration: 1.3,
+  imageDuration: 1.8,
+  zoomDuration: 1.1,
   brandDuration: 0.8,
   brandHold: 0.6,
   curtainDuration: 1.0,
   tileStagger: 0.04,
   tiles: { desktop: 14, mobile: 7 },
   cards: { desktop: 9, mobile: 5 },
-  depth: { desktop: 1, mobile: 0.55 },
-  zoomZ: 1400,
+  depth: { desktop: 1, mobile: 0.45 },
+  zoomZ: 170,
   ease: "power3.inOut",
 } as const;
 
 export const INTRO_REVEAL_EVENT = "redant:intro-reveal";
 export const INTRO_DONE_EVENT = "redant:intro-done";
 
-type Card = { x: number; y: number; z: number; w: number; h: number; rx: number; ry: number; rz: number; shape: "rect" | "square" | "circle" | "round" };
+type Card = { x: number; y: number; z: number; w: number; h: number; rz: number; shape: "rect" | "square" | "circle" | "round" };
 
 const LAYOUT: Card[] = [
-  { x: 0, y: 0, z: 120, w: 30, h: 20, rx: 0, ry: 0, rz: 0, shape: "rect" },
-  { x: -30, y: -18, z: -120, w: 14, h: 14, rx: 8, ry: 18, rz: -4, shape: "square" },
-  { x: 30, y: 18, z: -80, w: 13, h: 13, rx: -6, ry: -20, rz: 0, shape: "circle" },
-  { x: 29, y: -20, z: 20, w: 18, h: 12, rx: 10, ry: -14, rz: 5, shape: "round" },
-  { x: -29, y: 20, z: 40, w: 17, h: 12, rx: -10, ry: 16, rz: -6, shape: "rect" },
-  { x: -42, y: 0, z: -260, w: 12, h: 17, rx: 0, ry: 28, rz: 2, shape: "round" },
-  { x: 42, y: 1, z: -240, w: 11, h: 11, rx: 0, ry: -28, rz: 0, shape: "circle" },
-  { x: 2, y: -30, z: -200, w: 15, h: 9, rx: 20, ry: 0, rz: -3, shape: "rect" },
-  { x: -2, y: 31, z: -180, w: 10, h: 10, rx: -20, ry: 0, rz: 8, shape: "square" },
+  { x: 0, y: 1, z: 90, w: 38, h: 25, rz: 0, shape: "rect" },
+  { x: -31, y: -22, z: -50, w: 16, h: 12, rz: 5, shape: "rect" },
+  { x: 31, y: -23, z: -70, w: 18, h: 12, rz: -2, shape: "round" },
+  { x: -39, y: 3, z: -110, w: 13, h: 18, rz: 5, shape: "round" },
+  { x: 35, y: 5, z: -115, w: 11, h: 11, rz: 0, shape: "circle" },
+  { x: -30, y: 29, z: -130, w: 18, h: 12, rz: -9, shape: "rect" },
+  { x: 29, y: 29, z: -145, w: 14, h: 14, rz: 0, shape: "circle" },
+  { x: 2, y: -34, z: -155, w: 14, h: 8, rz: -2, shape: "rect" },
+  { x: 0, y: 37, z: -165, w: 12, h: 9, rz: 4, shape: "round" },
 ];
 
 function ImageMontage({ count, depth }: { count: number; depth: number }) {
@@ -49,7 +49,7 @@ function ImageMontage({ count, depth }: { count: number; depth: number }) {
             style={{
               width: `${c.w}vmax`,
               height: `${c.shape === "circle" || c.shape === "square" ? c.w : c.h}vmax`,
-              transform: `translate(-50%,-50%) translate3d(${c.x}vmax, ${c.y}vmax, ${c.z * depth}px) rotateX(${c.rx * depth}deg) rotateY(${c.ry * depth}deg) rotateZ(${c.rz}deg)`,
+              transform: `translate(-50%,-50%) translate3d(${c.x}vmax, ${c.y}vmax, ${c.z * depth}px) rotateZ(${c.rz}deg)`,
             }}
           >
             <img src={sources[i % sources.length]} alt="" draggable={false} />
@@ -109,14 +109,14 @@ export function IntroAnimation() {
         return;
       }
       const cardsEls = gsap.utils.toArray<HTMLElement>("[data-intro-card]");
-      // 1. Montage enters
-      tl.from(cardsEls, { opacity: 0, z: "-=600", y: "+=40", duration: 1.1, stagger: 0.06, ease: "power3.out" })
-        .fromTo("[data-intro-camera]", { rotateX: 8 * depth, rotateY: -12 * depth }, { rotateX: 3 * depth, rotateY: 6 * depth, duration: cfg.imageDuration, ease: "sine.inOut" }, 0)
-        // 2. Camera push through composition
-        .to("[data-intro-camera]", { z: cfg.zoomZ * depth, rotateX: 0, rotateY: 0, duration: cfg.zoomDuration, ease: "power3.in" }, cfg.imageDuration)
+       // 1. Quiet floating image field matching the architectural reference.
+       tl.from(cardsEls, { opacity: 0, scale: 0.9, y: "+=24", duration: 1.05, stagger: 0.055, ease: "power3.out" })
+         .fromTo("[data-intro-camera]", { scale: 0.96 }, { scale: 1, duration: cfg.imageDuration, ease: "sine.inOut" }, 0)
+         // 2. Controlled push through the central image.
+         .to("[data-intro-camera]", { z: cfg.zoomZ * depth, scale: 1.08, duration: cfg.zoomDuration, ease: "power2.in" }, cfg.imageDuration)
         .to(cardsEls, {
-          x: (i, t: HTMLElement) => Number(t.dataset["x"]) * 6,
-          y: (i, t: HTMLElement) => Number(t.dataset["y"]) * 6,
+           x: (i, t: HTMLElement) => Number(t.dataset["x"]) * 1.2,
+           y: (i, t: HTMLElement) => Number(t.dataset["y"]) * 1.2,
           duration: cfg.zoomDuration, ease: "power2.in",
         }, cfg.imageDuration)
         .to("[data-intro-stage]", { opacity: 0, duration: 0.35 }, cfg.imageDuration + cfg.zoomDuration - 0.35)
